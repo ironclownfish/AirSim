@@ -301,7 +301,10 @@ struct LidarData {
     vector<real_T> point_cloud;
     Pose pose;
 
-    LidarData()
+	LidarData()
+	{}
+
+    LidarData(TTimePoint timePoint, vector<real_T> cloud, Pose p) : time_stamp(timePoint), point_cloud(cloud), pose(p)
     {}
 };
 

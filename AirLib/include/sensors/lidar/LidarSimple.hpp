@@ -23,6 +23,9 @@ public:
 
         //initialize frequency limiter
         freq_limiter_.initialize(params_.update_frequency, params_.startup_delay);
+
+		current_full_scan_ = std::make_unique<vector<real_T>>();
+		last_full_scan_ = std::make_unique<vector<real_T>>();
     }
 
     //*** Start: UpdatableState implementation ***//
@@ -70,7 +73,21 @@ protected:
     virtual void getPointCloud(const Pose& lidar_pose, const Pose& vehicle_pose, 
         TTimeDelta delta_time, vector<real_T>& point_cloud) = 0;
 
-    
+	std::unique_ptr<vector<real_T>> last_full_scan_;
+	std::unique_ptr<vector<real_T>> current_full_scan_;
+	void finishCurrentSweep()
+	{
+		setFullScan(
+			LidarData(
+				clock()->nowNanos(),
+				*current_full_scan_,
+				params_.relative_pose
+			)
+		);
+		current_full_scan_.swap(last_full_scan_);
+		current_full_scan_->clear();
+	}
+
 private: //methods
     void updateOutput()
     {

@@ -164,6 +164,11 @@ msr::airlib::LidarData RpcLibClientBase::getLidarData(const std::string& lidar_n
     return pimpl_->client.call("getLidarData", lidar_name, vehicle_name).as<RpcLibAdapatorsBase::LidarData>().to();
 }
 
+msr::airlib::LidarData RpcLibClientBase::getLastFullLidarScan(const std::string& lidar_name, const std::string& vehicle_name) const
+{
+	return pimpl_->client.call("getLastFullLidarScan", lidar_name, vehicle_name).as<RpcLibAdapatorsBase::LidarData>().to();
+}
+
 msr::airlib::ImuBase::Output RpcLibClientBase::getImuData(const std::string& imu_name, const std::string& vehicle_name) const
 {
     return pimpl_->client.call("getImuData", imu_name, vehicle_name).as<RpcLibAdapatorsBase::ImuData>().to();

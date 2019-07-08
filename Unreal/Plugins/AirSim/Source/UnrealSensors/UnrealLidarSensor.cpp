@@ -80,21 +80,35 @@ void UnrealLidarSensor::getPointCloud(const msr::airlib::Pose& lidar_pose, const
     {
         const float vertical_angle = laser_angles_[laser];
 
+		bool this_laser_wrapped_already = false;
         for (auto i = 0u; i < points_to_scan_with_one_laser; ++i)
         {
             const float horizontal_angle = std::fmod(current_horizontal_angle_ + angle_distance_of_laser_measure * i, 360.0f);
 
-            // check if the laser is outside the requested horizontal FOV
+			// Check if this point is the first point of a new rotation.
+			const bool is_last_laser = laser == number_of_lasers - 1;
+			const bool is_first_point_after_wraparound = i > 0 && horizontal_angle < std::fmod(current_horizontal_angle_ + angle_distance_of_laser_measure * (i - 1), 360.0f);
+
+			if (is_last_laser && is_first_point_after_wraparound && !this_laser_wrapped_already)
+			{
+				this_laser_wrapped_already = true;
+				finishCurrentSweep();
+			}
+
+            // Check if the laser is outside the requested horizontal FOV
             if (!VectorMath::isAngleBetweenAngles(horizontal_angle, laser_start, laser_end))
                 continue;
        
             Vector3r point;
-            // shoot laser and get the impact point, if any
+            // Shoot laser and get the impact point, if any
             if (shootLaser(lidar_pose, vehicle_pose, laser, horizontal_angle, vertical_angle, params, point))
             {
                 point_cloud.emplace_back(point.x());
                 point_cloud.emplace_back(point.y());
                 point_cloud.emplace_back(point.z());
+				current_full_scan_->emplace_back(point.x());
+				current_full_scan_->emplace_back(point.y());
+				current_full_scan_->emplace_back(point.z());
             }
         }
     }

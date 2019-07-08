@@ -108,7 +108,7 @@ public:
     }
 
     // Lidar APIs
-    virtual LidarData getLidarData(const std::string& lidar_name) const
+    virtual LidarData getLidarData(const std::string& lidar_name, bool full_scan = false) const
     {
         const LidarBase* lidar = nullptr;
 
@@ -127,7 +127,7 @@ public:
         if (lidar == nullptr)
             throw VehicleControllerException(Utils::stringf("No lidar with name %s exist on vehicle", lidar_name.c_str()));
 
-        return lidar->getOutput();
+        return full_scan ? lidar->getLastFullScan() : lidar->getOutput();
     }
 
     // IMU API

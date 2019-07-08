@@ -45,14 +45,24 @@ public:
         return output_;
     }
 
+	const LidarData& getLastFullScan() const
+	{
+		return full_scan_;
+	}
+
 protected:
     void setOutput(const LidarData& output)
     {
         output_ = output;
     }
 
+	void setFullScan(const LidarData& scan)
+	{
+		full_scan_ = scan;
+	}
 private:
     LidarData output_;
+	LidarData full_scan_;
 };
 
 }} //namespace
