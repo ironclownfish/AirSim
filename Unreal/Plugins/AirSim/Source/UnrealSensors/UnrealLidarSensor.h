@@ -38,4 +38,5 @@ private:
 
     msr::airlib::vector<msr::airlib::real_T> laser_angles_;
     float current_horizontal_angle_ = 0.0f;
+	int current_laser = 0;
 };

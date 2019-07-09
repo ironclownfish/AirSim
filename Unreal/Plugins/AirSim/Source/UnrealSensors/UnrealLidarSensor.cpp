@@ -52,7 +52,8 @@ void UnrealLidarSensor::getPointCloud(const msr::airlib::Pose& lidar_pose, const
     // cap the points to scan via ray-tracing; this is currently needed for car/Unreal tick scenarios
     // since SensorBase mechanism uses the elapsed clock time instead of the tick delta-time.
     constexpr float MAX_POINTS_IN_SCAN = 1e+5f;
-    uint32 total_points_to_scan = FMath::RoundHalfFromZero(params.points_per_second * delta_time);
+	auto dt = FMath::Min((double)delta_time, 1.0 / params.horizontal_rotation_frequency);
+    uint32 total_points_to_scan = FMath::RoundHalfFromZero(params.points_per_second * dt);
     if (total_points_to_scan > MAX_POINTS_IN_SCAN)
     {
         total_points_to_scan = MAX_POINTS_IN_SCAN;
@@ -68,7 +69,7 @@ void UnrealLidarSensor::getPointCloud(const msr::airlib::Pose& lidar_pose, const
     }
 
     // calculate needed angle/distance between each point
-    const float angle_distance_of_tick = params.horizontal_rotation_frequency * 360.0f * delta_time;
+    const float angle_distance_of_tick = params.horizontal_rotation_frequency * 360.0f * dt;
     const float angle_distance_of_laser_measure = angle_distance_of_tick / points_to_scan_with_one_laser;
 
     // normalize FOV start/end
@@ -80,20 +81,16 @@ void UnrealLidarSensor::getPointCloud(const msr::airlib::Pose& lidar_pose, const
     {
         const float vertical_angle = laser_angles_[laser];
 
-		bool this_laser_wrapped_already = false;
         for (auto i = 0u; i < points_to_scan_with_one_laser; ++i)
         {
             const float horizontal_angle = std::fmod(current_horizontal_angle_ + angle_distance_of_laser_measure * i, 360.0f);
 
 			// Check if this point is the first point of a new rotation.
 			const bool is_last_laser = laser == number_of_lasers - 1;
-			const bool is_first_point_after_wraparound = i > 0 && horizontal_angle < std::fmod(current_horizontal_angle_ + angle_distance_of_laser_measure * (i - 1), 360.0f);
+			const bool is_wraparound = horizontal_angle - angle_distance_of_laser_measure <= 0.f;
 
-			if (is_last_laser && is_first_point_after_wraparound && !this_laser_wrapped_already)
-			{
-				this_laser_wrapped_already = true;
+			if (is_last_laser && is_wraparound)
 				finishCurrentSweep();
-			}
 
             // Check if the laser is outside the requested horizontal FOV
             if (!VectorMath::isAngleBetweenAngles(horizontal_angle, laser_start, laser_end))
