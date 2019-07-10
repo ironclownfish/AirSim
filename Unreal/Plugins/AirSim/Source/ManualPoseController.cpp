@@ -130,7 +130,7 @@ void UManualPoseController::setMouseLookMode(bool on)
 
 bool UManualPoseController::isShiftKeyDown()
 {
-	return getActor()->GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::LeftShift);
+	return getActor() && getActor()->GetWorld() && getActor()->GetWorld()->GetFirstPlayerController() && getActor()->GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::LeftShift);
 }
 
 float UManualPoseController::speedMultiplier()
