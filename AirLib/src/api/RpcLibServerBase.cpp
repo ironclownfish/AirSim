@@ -115,21 +115,27 @@ RpcLibServerBase::RpcLibServerBase(ApiProvider* api_provider, const std::string&
         return result;
     });
 
-    pimpl_->server.
-        bind("simSetVehiclePose", [&](const RpcLibAdapatorsBase::Pose &pose, bool ignore_collision, const std::string& vehicle_name) -> void {
+    pimpl_->server.bind("simSetVehiclePose", [&](const RpcLibAdapatorsBase::Pose &pose, bool ignore_collision, const std::string& vehicle_name) -> void {
         getVehicleSimApi(vehicle_name)->setPose(pose.to(), ignore_collision);
     });
+
     pimpl_->server.bind("simGetVehiclePose", [&](const std::string& vehicle_name) -> RpcLibAdapatorsBase::Pose {
         const auto& pose = getVehicleSimApi(vehicle_name)->getPose();
         return RpcLibAdapatorsBase::Pose(pose);
     });
 
-    pimpl_->server.
-        bind("simSetSegmentationObjectID", [&](const std::string& mesh_name, int object_id, bool is_name_regex) -> bool {
+	pimpl_->server.bind("simGetLidarSegmentation", [&](const std::string& lidar_name, const std::string& vehicle_name) -> std::vector<int> {
+		return getVehicleApi(vehicle_name)->getLidarSegmentation(lidar_name);
+	});
+
+	pimpl_->server.bind("simGetLastFullLidarScanSegmentation", [&](const std::string& lidar_name, const std::string& vehicle_name) -> std::vector<int> {
+		return getVehicleApi(vehicle_name)->getLidarSegmentation(lidar_name, true);
+	});
+
+    pimpl_->server.bind("simSetSegmentationObjectID", [&](const std::string& mesh_name, int object_id, bool is_name_regex) -> bool {
         return getWorldSimApi()->setSegmentationObjectID(mesh_name, object_id, is_name_regex);
     });
-    pimpl_->server.
-        bind("simGetSegmentationObjectID", [&](const std::string& mesh_name) -> int {
+    pimpl_->server.bind("simGetSegmentationObjectID", [&](const std::string& mesh_name) -> int {
         return getWorldSimApi()->getSegmentationObjectID(mesh_name);
     });    
 

@@ -130,6 +130,15 @@ public:
         return full_scan ? lidar->getLastFullScan() : lidar->getOutput();
     }
 
+	virtual vector<int> getLidarSegmentation(const std::string& lidar_name, bool full_scan = false) const
+	{
+		auto *lidar = findLidarByName(lidar_name);
+		if (lidar == nullptr)
+			throw VehicleControllerException(Utils::stringf("No lidar with name %s exist on vehicle", lidar_name.c_str()));
+
+		return full_scan ? lidar->getFullScanSegmentation() : lidar->getSegmentationOutput();
+	}
+
     // IMU API
     virtual ImuBase::Output getImuData(const std::string& imu_name) const
     {
