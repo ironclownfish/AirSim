@@ -26,6 +26,9 @@ public:
 
 		current_full_scan_ = std::make_unique<vector<real_T>>();
 		last_full_scan_ = std::make_unique<vector<real_T>>();
+
+		last_full_segmentation_ = std::make_unique<vector<int>>();
+		current_full_segmentation_ = std::make_unique<vector<int>>();
     }
 
     //*** Start: UpdatableState implementation ***//
@@ -71,10 +74,14 @@ public:
 
 protected:
     virtual void getPointCloud(const Pose& lidar_pose, const Pose& vehicle_pose, 
-        TTimeDelta delta_time, vector<real_T>& point_cloud) = 0;
+        TTimeDelta delta_time, vector<real_T>& point_cloud, vector<int>& segmentation_cloud) = 0;
 
 	std::unique_ptr<vector<real_T>> last_full_scan_;
 	std::unique_ptr<vector<real_T>> current_full_scan_;
+
+	std::unique_ptr<vector<int>> last_full_segmentation_;
+	std::unique_ptr<vector<int>> current_full_segmentation_;
+
 	void finishCurrentSweep()
 	{
 		setFullScan(
@@ -86,6 +93,10 @@ protected:
 		);
 		current_full_scan_.swap(last_full_scan_);
 		current_full_scan_->clear();
+
+		setFullScanSegmentationOuput(*current_full_segmentation_);
+		current_full_segmentation_.swap(last_full_segmentation_);
+		current_full_segmentation_->clear();
 	}
 
 private: //methods
@@ -109,7 +120,9 @@ private: //methods
         getPointCloud(params_.relative_pose, // relative lidar pose
             ground_truth.kinematics->pose,   // relative vehicle pose
             delta_time, 
-            point_cloud_);
+            point_cloud_,
+			segmentation_cloud_
+		);
 
         LidarData output;
         output.point_cloud = point_cloud_;
@@ -119,11 +132,13 @@ private: //methods
         last_time_ = output.time_stamp;
 
         setOutput(output);
+		setSegmentationOutput(segmentation_cloud_);
     }
 
 private:
     LidarSimpleParams params_;
     vector<real_T> point_cloud_;
+	vector<int> segmentation_cloud_;
 
     FrequencyLimiter freq_limiter_;
     TTimePoint last_time_;

@@ -164,6 +164,12 @@ class VehicleClient:
         
     def getLastFullLidarScan(self, lidar_name = '', vehicle_name = ''):
         return LidarData.from_msgpack(self.client.call('getLastFullLidarScan', lidar_name, vehicle_name))
+    
+    def simGetLidarSegmentation(self, lidar_name = '', vehicle_name = ''):
+        return self.client.call('simGetLidarSegmentation', lidar_name, vehicle_name)
+    
+    def simGetLastFullLidarScanSegmentation(self, lidar_name = '', vehicle_name = ''):
+        return self.client.call('simGetLastFullLidarScanSegmentation', lidar_name, vehicle_name)
 
     #----------- APIs to control ACharacter in scene ----------/
     def simCharSetFaceExpression(self, expression_name, value, character_name = ""):

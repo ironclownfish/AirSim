@@ -50,6 +50,11 @@ public:
 		return full_scan_;
 	}
 
+	const vector<int>& getSegmentationOutput() const
+	{
+		return segmentation_output_;
+	}
+
 	const vector<int>& getFullScanSegmentation() const
 	{
 		return segmentation_last_full_scan_;
@@ -65,6 +70,17 @@ protected:
 	{
 		full_scan_ = scan;
 	}
+
+	void setSegmentationOutput(vector<int>& segmentation_output)
+	{
+		segmentation_output_ = segmentation_output;
+	}
+
+	void setFullScanSegmentationOuput(vector<int>& segmentation_output)
+	{
+		segmentation_last_full_scan_ = segmentation_output;
+	}
+
 private:
     LidarData output_;
 	LidarData full_scan_;
