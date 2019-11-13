@@ -155,6 +155,41 @@ std::unique_ptr<std::vector<std::string>> WorldSimApi::swapTextures(const std::s
 	return swappedObjectNames;
 }
 
+void WorldSimApi::setEffect(const std::string& tag, int material_id, const std::string &effect_name, float amount)
+{
+    UAirBlueprintLib::RunCommandOnGameThread([this, &tag, material_id, &effect_name, amount]() {
+		//Split the tag string into individual tags.
+		TArray<FString> splitTags;
+		FString notSplit = FString(tag.c_str());
+		FString next = "";
+		while (notSplit.Split(",", &next, &notSplit))
+		{
+			next.TrimStartInline();
+			splitTags.Add(next);
+		}
+		notSplit.TrimStartInline();
+		splitTags.Add(notSplit);
+
+		//Texture swap on actors that have all of those tags.
+		TArray<AActor*> shuffleables;
+		UAirBlueprintLib::FindAllActor<ATextureShuffleActor>(simmode_, shuffleables);
+		for (auto *shuffler : shuffleables)
+		{
+            bool invalidChoice = false;
+			for (auto required_tag : splitTags)
+			{
+				invalidChoice |= !shuffler->ActorHasTag(FName(*required_tag));
+				if (invalidChoice)
+					break;
+			}
+
+            if (invalidChoice)
+				continue;
+			dynamic_cast<ATextureShuffleActor*>(shuffler)->SetEffect(material_id, FName(effect_name.c_str()), amount);
+        }
+    }, true);
+}
+
 //------------------------------------------------- Char APIs -----------------------------------------------------------/
 
 void WorldSimApi::charSetFaceExpression(const std::string& expression_name, float value, const std::string& character_name)

@@ -21,15 +21,20 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = TextureShuffle)
 	TArray<UTexture2D*> SwappableTextures;
 
+	UPROPERTY(BlueprintReadOnly, Category = TextureShuffle)
+	TArray<UMaterialInstanceDynamic*> DynamicMaterialInstances;
+
 public:
 
 	UFUNCTION(BlueprintNativeEvent)
 	void SwapTexture(int tex_id = 0, int component_id = 0, int material_id = 0);
 
+	UFUNCTION(BlueprintNativeEvent)
+	void SetEffect(int material_id, const FName &effect_name, float amount);
+
 private:
 	bool MaterialCacheInitialized = false;
 	int NumComponents = -1;
 
-	UPROPERTY()
-	TArray<UMaterialInstanceDynamic*> DynamicMaterialInstances;
+	void InitDynamicMaterialIfNeeded();
 };

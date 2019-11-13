@@ -75,6 +75,8 @@ class VehicleClient:
 
     def simSwapTextures(self, tags, tex_id = 0, component_id = 0, material_id = 0):
         return self.client.call("simSwapTextures", tags, tex_id, component_id, material_id)
+    def simSetEffect(self, tags, material_id, effect_name, amount):
+        self.client.call("simSetEffect", tags, material_id, effect_name, amount)
 
     # time-of-day control
     def simSetTimeOfDay(self, is_enabled, start_datetime = "", is_start_datetime_dst = False, celestial_clock_speed = 1, update_interval_secs = 60, move_sun = True):

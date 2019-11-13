@@ -31,3 +31,25 @@ void ATextureShuffleActor::SwapTexture_Implementation(int tex_id, int component_
 
 	DynamicMaterialInstances[material_id]->SetTextureParameterValue("TextureParameter", SwappableTextures[tex_id]);
 }
+
+void ATextureShuffleActor::SetEffect_Implementation(int material_id, const FName &effect_name, float amount)
+{
+	if (DynamicMaterialInstances.Num() == 0)
+	{
+		TArray<UStaticMeshComponent*> components;
+		GetComponents<UStaticMeshComponent>(components);
+		DynamicMaterialInstances.Init(nullptr, components[0]->GetNumMaterials());
+	}
+
+	material_id %= DynamicMaterialInstances.Num();
+
+	if (DynamicMaterialInstances[material_id] == nullptr)
+	{
+		DynamicMaterialInstances[material_id] = UMaterialInstanceDynamic::Create(DynamicMaterial, this);
+		TArray<UStaticMeshComponent*> components;
+		GetComponents<UStaticMeshComponent>(components);
+		components[0]->SetMaterial(material_id, DynamicMaterialInstances[material_id]);
+	}
+
+	DynamicMaterialInstances[material_id]->SetScalarParameterValue(effect_name, amount);
+}
