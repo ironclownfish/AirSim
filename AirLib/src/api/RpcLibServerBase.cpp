@@ -303,6 +303,10 @@ RpcLibServerBase::RpcLibServerBase(ApiProvider* api_provider, const std::string&
 		return *getWorldSimApi()->swapTextures(tag, tex_id, component_id, material_id);
 	});
 
+    pimpl_->server.bind("simSetEffect", [&](const std::string& tag, int material_id, const std::string &effect_name, float amount) {
+        getWorldSimApi()->setEffect(tag, material_id, effect_name, amount);
+    });
+
     //if we don't suppress then server will bomb out for exceptions raised by any method
     pimpl_->server.suppress_exceptions(true);
 }

@@ -111,6 +111,8 @@ public:
     std::unordered_map<std::string, msr::airlib::Pose> simGetBonePoses(const std::vector<std::string>& bone_names, const std::string& character_name = "") const;
 
 	std::vector<std::string> simSwapTextures(const std::string& tags, int tex_id = 0, int component_id = 0, int material_id = 0);
+    void simSetEffect(const std::string& tag, int material_id, const std::string &effect_name, float amount);
+ 
 
 protected:
     void* getClient();
