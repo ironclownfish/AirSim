@@ -8,6 +8,7 @@
 #include <memory>
 #include "common/Common.hpp"
 
+class BufferPool;
 
 class RenderRequest : public FRenderCommand
 {
@@ -19,10 +20,17 @@ public:
         bool compress;
     };
     struct RenderResult {
+
+		RenderResult() = default;
+		RenderResult(RenderResult&) = default;
+		RenderResult(RenderResult&&) = default;
+		RenderResult &operator=(RenderResult &&) = default;
+
         int width;
         int height;
-
+		int stride;
         msr::airlib::TTimePoint time_stamp;
+		std::unique_ptr<std::vector<uint8_t>, std::function<void(std::vector<uint8_t>*)>> pixels = nullptr;
     };
 
 private:
@@ -30,11 +38,11 @@ private:
     std::shared_ptr<RenderResult>* results_;
 public:
 	RenderParams fast_param_{ nullptr, nullptr, false, false };
-	volatile RenderResult latest_result_{};
-	std::vector<uint8_t> *rgba_output_ = nullptr;
+	RenderResult latest_result_{};
 
 private:
 	volatile bool fast_cap_done_ = false;
+	BufferPool *buffer_pool_;
 	FTextureRenderTargetResource* fast_rt_resource_;
 
     std::shared_ptr<msr::airlib::WorkerThreadSignal> wait_signal_;
@@ -45,7 +53,7 @@ private:
     std::function<void()> query_camera_pose_cb_;
 
 public:
-    RenderRequest(std::vector<uint8_t> &rgba_output);
+    RenderRequest(BufferPool *buffer_pool);
     ~RenderRequest();
 
     FORCEINLINE TStatId GetStatId() const
@@ -54,5 +62,5 @@ public:
     }
 
 	void FastScreenshot();
-	void RenderThreadScreenshotTask();
+	void RenderThreadScreenshotTask(RenderResult &result);
 };
